@@ -270,7 +270,8 @@ age_entry_order = Entry(aba2, textvariable=age_var_order, validate="key", valida
 age_entry_order.grid(row=0, column=3, padx=15, pady=10, sticky=W)
 
 Label(aba2, text='CPF :').grid(row=1, column=0, padx=15, pady=10, sticky=W)
-ident_entry_order = Entry(aba2)
+ident_var_order = StringVar()
+ident_entry_order = Entry(aba2, textvariable=ident_var_order, validate="key", validatecommand=(validate_age, '%P'))
 ident_entry_order.grid(row=1, column=1, padx=15, pady=10, sticky=W)
 
 Label(aba2, text='Produto :').grid(row=1, column=2, padx=5, pady=10, sticky=W)
