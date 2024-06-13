@@ -62,7 +62,7 @@ def add_client():
     cursor = conn.cursor()
 
     nome = name_entry_product.get()
-    idade = age_entry_product.get()
+    quantidade = int(age_entry_product.get())
     id = ident_entry_product.get()
     produto = product_combobox_product.get()
 
@@ -75,11 +75,23 @@ def add_client():
         return
 
     cursor.execute(""" INSERT INTO employee (Name, Age, Role, Ident)
-        VALUES (?, ?, ?, ?)""", (nome, idade, produto, id))
+        VALUES (?, ?, ?, ?)""", (nome, quantidade, produto, id))
+    conn.commit()
+
+    # Atualiza o estoque após adicionar um novo produto
+    cursor.execute("SELECT Available FROM stock WHERE Product = ?", (produto,))
+    current_stock = cursor.fetchone()
+    if current_stock:
+        updated_stock = current_stock[0] + quantidade  # Incrementa o estoque pela quantidade inserida
+        cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (updated_stock, produto))
+    else:
+        cursor.execute("INSERT INTO stock (Product, Available) VALUES (?, ?)", (produto, quantidade))
+
     conn.commit()
     desconect_bd(conn)
     select_client()
     clean_info_product()
+    update_stock_list()
 
 
 def add_order():
@@ -87,16 +99,39 @@ def add_order():
     cursor = conn.cursor()
 
     nome = name_entry_order.get()
-    quantidade = age_entry_order.get()
+    quantidade = int(age_entry_order.get())
     cpf = ident_entry_order.get()
     produto = product_combobox_order.get()
 
-    cursor.execute(""" INSERT INTO orders (Name, Quantity, CPF, Product)
-        VALUES (?, ?, ?, ?)""", (nome, quantidade, cpf, produto))
-    conn.commit()
+    # Verificar se há estoque suficiente para o pedido
+    cursor.execute("SELECT Available FROM stock WHERE Product = ?", (produto,))
+    current_stock = cursor.fetchone()
+
+    if current_stock:
+        available_quantity = current_stock[0]
+
+        if quantidade > available_quantity:
+            print(f"Aviso!! Quantidade insuficiente de '{produto}' no estoque.")
+            desconect_bd(conn)
+            return
+
+        # Inserir o pedido na tabela 'orders'
+        cursor.execute(""" INSERT INTO orders (Name, Quantity, CPF, Product)
+            VALUES (?, ?, ?, ?)""", (nome, quantidade, cpf, produto))
+        conn.commit()
+
+        # Atualizar o estoque subtraindo a quantidade do pedido
+        updated_stock = available_quantity
+        cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (updated_stock, produto))
+        conn.commit()
+
+    else:
+        print(f"Produto '{produto}' não encontrado no estoque.")
+
     desconect_bd(conn)
     select_orders()
     clean_info_order()
+    update_stock_list()  # Atualiza a lista de estoque na interface
 
 
 def validate_age_input(new_value):
@@ -160,11 +195,30 @@ def delete_client():
         return
 
     client_code = client_list.item(selected_item)['values'][0]
+    product_name = client_list.item(selected_item)['values'][4]
+    quantity = client_list.item(selected_item)['values'][2]
+
+    # Primeiro, deletamos o cliente da tabela 'employee'
     cursor.execute("DELETE FROM employee WHERE code = ?", (client_code,))
     conn.commit()
+
+    # Em seguida, atualizamos o estoque subtraindo a quantidade associada ao cliente deletado
+    cursor.execute("SELECT Available FROM stock WHERE Product = ?", (product_name,))
+    stock_result = cursor.fetchone()
+
+    if stock_result:
+        current_stock = stock_result[0]
+        updated_stock = current_stock - quantity  # Subtrai a quantidade associada ao cliente deletado
+        cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (updated_stock, product_name))
+        conn.commit()
+    else:
+        print(f"Aviso!! Produto '{product_name}' não encontrado no estoque.")
+
     desconect_bd(conn)
-    clean_info_product()
     select_client()
+    update_stock_list()  # Atualiza a lista de estoque na interface
+
+
 
 
 def delete_order():
@@ -178,11 +232,27 @@ def delete_order():
         return
 
     order_id = order_list.item(selected_item)['values'][0]
+    cursor.execute("SELECT Product, Quantity FROM orders WHERE order_id = ?", (order_id,))
+    order_info = cursor.fetchone()
+    if not order_info:
+        print(f"Pedido com ID {order_id} não encontrado.")
+        desconect_bd(conn)
+        return
+
+    product_name = order_info[0]
+    order_quantity = order_info[1]
+
     cursor.execute("DELETE FROM orders WHERE order_id = ?", (order_id,))
     conn.commit()
+
+    # Restaura a quantidade no estoque
+    cursor.execute("UPDATE stock SET Available = Available + ? WHERE Product = ?", (order_quantity, product_name))
+    conn.commit()
+
     desconect_bd(conn)
-    clean_info_order()
     select_orders()
+    update_stock_list()  # Atualiza a lista de estoque na interface
+
 
 
 def edit_client():
@@ -204,9 +274,14 @@ def edit_client():
     cursor.execute(""" UPDATE employee SET Name = ?, Age = ?, Role = ?, Ident = ?
         WHERE code = ?""", (nome, idade, produto, id, client_code))
     conn.commit()
+
+    # Atualiza o estoque após editar o cliente (exemplo fictício)
+    # Aqui você pode adicionar lógica específica de como a alteração do cliente afeta o estoque, se aplicável
+
     desconect_bd(conn)
     select_client()
     clean_info_product()
+    update_stock_list()  # Atualiza a lista de estoque na interface
 
 
 def edit_order():
@@ -220,7 +295,7 @@ def edit_order():
         return
 
     nome = name_entry_order.get()
-    quantidade = age_entry_order.get()
+    quantidade = int(age_entry_order.get())  # Convertendo para inteiro
     cpf = ident_entry_order.get()
     produto = product_combobox_order.get()
 
@@ -228,9 +303,20 @@ def edit_order():
     cursor.execute(""" UPDATE orders SET Name = ?, Quantity = ?, CPF = ?, Product = ?
         WHERE order_id = ?""", (nome, quantidade, cpf, produto, order_id))
     conn.commit()
+
+    # Atualiza o estoque após editar o pedido
+    cursor.execute("SELECT Available FROM stock WHERE Product = ?", (produto,))
+    current_stock = cursor.fetchone()
+    if current_stock:
+        cursor.execute("UPDATE stock SET Available = Available + ? WHERE Product = ?", (quantidade, produto))
+        conn.commit()
+    else:
+        print(f"Produto '{produto}' não encontrado no estoque.")
+
     desconect_bd(conn)
     select_orders()
     clean_info_order()
+    update_stock_list()  # Atualiza a lista de estoque na interface
 
 
 def add_stock(product, quantity):
@@ -255,22 +341,33 @@ def get_stock_info():
     desconect_bd(conn)
     return stock_info
 
+
 def calculate_stock():
     conn = connect_bd()
     cursor = conn.cursor()
+
+    # Selecionar os produtos e a quantidade total retirada
     cursor.execute("""
         SELECT s.Product, s.Available, IFNULL(SUM(o.Quantity), 0) as Retirada
         FROM stock s LEFT JOIN orders o ON s.Product = o.Product
         GROUP BY s.Product
     """)
     stock_data = cursor.fetchall()
+
     desconect_bd(conn)
-    return stock_data
+
+    # Calcular a quantidade disponível atualmente
+    stock_with_available = []
+    for product, available, retirada in stock_data:
+        current_available = available - retirada
+        stock_with_available.append((product, current_available, retirada))
+
+    return stock_with_available
 
 
 # Inicializa a janela principal
 window = Tk()
-window.title('Registration')
+window.title('Projeto')
 window.geometry('800x600')
 
 # Frame principal
