@@ -30,8 +30,17 @@ def create_tab():
             Product TEXT NOT NULL
         );
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS stock (
+            product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            Product TEXT NOT NULL,
+            Available INTEGER NOT NULL
+        );
+    """)
     conn.commit()
     desconect_bd(conn)
+
+
 
 # Funções do Tkinter
 def clean_info_product():
@@ -40,11 +49,13 @@ def clean_info_product():
     product_combobox_product.set('')  # Limpar a seleção do combobox
     ident_entry_product.delete(0, END)
 
+
 def clean_info_order():
     name_entry_order.delete(0, END)
     age_entry_order.delete(0, END)
     product_combobox_order.set('')  # Limpar a seleção do combobox
     ident_entry_order.delete(0, END)
+
 
 def add_client():
     conn = connect_bd()
@@ -70,6 +81,7 @@ def add_client():
     select_client()
     clean_info_product()
 
+
 def add_order():
     conn = connect_bd()
     cursor = conn.cursor()
@@ -86,8 +98,10 @@ def add_order():
     select_orders()
     clean_info_order()
 
+
 def validate_age_input(new_value):
     return new_value.isdigit() or new_value == ""
+
 
 def select_client():
     conn = connect_bd()
@@ -98,6 +112,7 @@ def select_client():
         client_list.insert("", END, values=i)
     desconect_bd(conn)
 
+
 def select_orders():
     conn = connect_bd()
     cursor = conn.cursor()
@@ -106,6 +121,7 @@ def select_orders():
     for i in lista:
         order_list.insert("", END, values=i)
     desconect_bd(conn)
+
 
 def show_selected_client(event):
     selected_item = client_list.selection()
@@ -119,6 +135,7 @@ def show_selected_client(event):
         ident_entry_product.delete(0, END)
         ident_entry_product.insert(0, client_info[4])
 
+
 def show_selected_order(event):
     selected_item = order_list.selection()
     if selected_item:
@@ -130,6 +147,7 @@ def show_selected_order(event):
         ident_entry_order.delete(0, END)
         ident_entry_order.insert(0, order_info[3])
         product_combobox_order.set(order_info[4])
+
 
 def delete_client():
     conn = connect_bd()
@@ -148,6 +166,7 @@ def delete_client():
     clean_info_product()
     select_client()
 
+
 def delete_order():
     conn = connect_bd()
     cursor = conn.cursor()
@@ -164,6 +183,7 @@ def delete_order():
     desconect_bd(conn)
     clean_info_order()
     select_orders()
+
 
 def edit_client():
     conn = connect_bd()
@@ -188,6 +208,7 @@ def edit_client():
     select_client()
     clean_info_product()
 
+
 def edit_order():
     conn = connect_bd()
     cursor = conn.cursor()
@@ -211,11 +232,48 @@ def edit_order():
     select_orders()
     clean_info_order()
 
-# Interface gráfica
+
+def add_stock(product, quantity):
+    conn = connect_bd()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO stock (Product, Available) VALUES (?, ?)", (product, quantity))
+    conn.commit()
+    desconect_bd(conn)
+
+def update_stock(product, quantity):
+    conn = connect_bd()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE stock SET Available = Available - ? WHERE Product = ?", (quantity, product))
+    conn.commit()
+    desconect_bd(conn)
+
+def get_stock_info():
+    conn = connect_bd()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM stock")
+    stock_info = cursor.fetchall()
+    desconect_bd(conn)
+    return stock_info
+
+def calculate_stock():
+    conn = connect_bd()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT s.Product, s.Available, IFNULL(SUM(o.Quantity), 0) as Retirada
+        FROM stock s LEFT JOIN orders o ON s.Product = o.Product
+        GROUP BY s.Product
+    """)
+    stock_data = cursor.fetchall()
+    desconect_bd(conn)
+    return stock_data
+
+
+# Inicializa a janela principal
 window = Tk()
 window.title('Registration')
 window.geometry('800x600')
 
+# Frame principal
 frame = Frame(window)
 frame.pack()
 
@@ -346,8 +404,34 @@ order_list.configure(yscroll=scrollbar2.set)
 scrollbar2.place(relx=0.95, rely=0.01, relwidth=0.05, relheight=0.95)
 order_list.bind("<Double-1>", show_selected_order)
 
+# Treeview para Estoque
+stock_list = ttk.Treeview(aba5, columns=('col1', 'col2', 'col3'))
+stock_list.grid(row=0, column=0, padx=150, columnspan=1, pady=10, sticky=W)
+
+stock_list.heading("#0", text="")
+stock_list.column("#0", width=0, stretch=NO)
+stock_list.heading("#1", text='Produto')
+stock_list.column("#1", width=150)
+stock_list.heading("#2", text='Disponível')
+stock_list.column("#2", width=150)
+stock_list.heading("#3", text='Retirada')
+stock_list.column("#3", width=150)
+
+scrollbar3 = ttk.Scrollbar(aba5, orient=VERTICAL)
+stock_list.configure(yscroll=scrollbar3.set)
+scrollbar3.place(relx=0.95, rely=0.01, relwidth=0.05, relheight=0.95)
+
+
+def update_stock_list():
+    stock_list.delete(*stock_list.get_children())
+    stock_data = calculate_stock()
+    for item in stock_data:
+        stock_list.insert("", END, values=item)
+
+
 # Inicializa banco de dados e interface
 create_tab()
 select_client()
 select_orders()
+update_stock_list()
 window.mainloop()
