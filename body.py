@@ -405,7 +405,7 @@ frame.pack()
 
 # Primeira parte - 1
 user_info_frame = LabelFrame(frame, text='User Info')
-user_info_frame.grid(row=0, column=0, padx=35, pady=20, sticky=W)
+user_info_frame.grid(row=0, column=0, padx=100, pady=20, sticky=W)
 
 abas = ttk.Notebook(user_info_frame)
 aba1 = Frame(abas)
