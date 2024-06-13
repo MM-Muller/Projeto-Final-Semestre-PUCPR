@@ -131,7 +131,7 @@ def add_order():
     desconect_bd(conn)
     select_orders()
     clean_info_order()
-    update_stock_list()  # Atualiza a lista de estoque na interface
+    update_stock_list()
 
 
 def validate_age_input(new_value):
@@ -219,8 +219,6 @@ def delete_client():
     update_stock_list()  # Atualiza a lista de estoque na interface
 
 
-
-
 def delete_order():
     conn = connect_bd()
     cursor = conn.cursor()
@@ -242,17 +240,27 @@ def delete_order():
     product_name = order_info[0]
     order_quantity = order_info[1]
 
+    # Obter a quantidade atual do produto no estoque
+    cursor.execute("SELECT Available FROM stock WHERE Product = ?", (product_name,))
+    stock_info = cursor.fetchone()
+    if not stock_info:
+        print(f"Produto '{product_name}' não encontrado no estoque.")
+        desconect_bd(conn)
+        return
+
+    current_available = stock_info[0]
+
+    # Deletar o pedido da tabela 'orders'
     cursor.execute("DELETE FROM orders WHERE order_id = ?", (order_id,))
     conn.commit()
 
-    # Restaura a quantidade no estoque
-    cursor.execute("UPDATE stock SET Available = Available + ? WHERE Product = ?", (order_quantity, product_name))
+    # Restaurar a quantidade no estoque com a quantidade cadastrada
+    cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (current_available, product_name))
     conn.commit()
 
     desconect_bd(conn)
     select_orders()
     update_stock_list()  # Atualiza a lista de estoque na interface
-
 
 
 def edit_client():
@@ -300,15 +308,34 @@ def edit_order():
     produto = product_combobox_order.get()
 
     order_id = order_list.item(selected_item)['values'][0]
+
+    # Obter informações atuais do pedido antes da edição
+    cursor.execute("SELECT Product, Quantity FROM orders WHERE order_id = ?", (order_id,))
+    current_order_info = cursor.fetchone()
+
+    if not current_order_info:
+        print(f"Pedido com ID {order_id} não encontrado.")
+        desconect_bd(conn)
+        return
+
+    current_product_name = current_order_info[0]
+    current_quantity = current_order_info[1]
+
+    # Restaurar a quantidade original do pedido no estoque
+    cursor.execute("UPDATE stock SET Available = Available + ? WHERE Product = ?", (current_quantity, current_product_name))
+    conn.commit()
+
+    # Executar a atualização do pedido com as novas informações
     cursor.execute(""" UPDATE orders SET Name = ?, Quantity = ?, CPF = ?, Product = ?
         WHERE order_id = ?""", (nome, quantidade, cpf, produto, order_id))
     conn.commit()
 
-    # Atualiza o estoque após editar o pedido
+    # Atualizar o estoque subtraindo a nova quantidade do pedido
     cursor.execute("SELECT Available FROM stock WHERE Product = ?", (produto,))
     current_stock = cursor.fetchone()
     if current_stock:
-        cursor.execute("UPDATE stock SET Available = Available + ? WHERE Product = ?", (quantidade, produto))
+        updated_stock = current_stock[0] - quantidade
+        cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (updated_stock, produto))
         conn.commit()
     else:
         print(f"Produto '{produto}' não encontrado no estoque.")
@@ -317,6 +344,8 @@ def edit_order():
     select_orders()
     clean_info_order()
     update_stock_list()  # Atualiza a lista de estoque na interface
+
+
 
 
 def add_stock(product, quantity):
@@ -367,7 +396,7 @@ def calculate_stock():
 
 # Inicializa a janela principal
 window = Tk()
-window.title('Projeto')
+window.title('Gerenciamento Papelaria')
 window.geometry('800x600')
 
 # Frame principal
