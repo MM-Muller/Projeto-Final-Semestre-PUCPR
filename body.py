@@ -3,11 +3,15 @@ from tkinter import ttk
 import sqlite3
 
 # Funções do banco de dados
+
+
 def connect_bd():
     return sqlite3.connect('employee.db')
 
+
 def desconect_bd(conn):
     conn.close()
+
 
 def create_tab():
     conn = connect_bd()
@@ -39,7 +43,6 @@ def create_tab():
     """)
     conn.commit()
     desconect_bd(conn)
-
 
 
 # Funções do Tkinter
@@ -198,11 +201,11 @@ def delete_client():
     product_name = client_list.item(selected_item)['values'][4]
     quantity = client_list.item(selected_item)['values'][2]
 
-    # Primeiro, deletamos o cliente da tabela 'employee'
+    # Deletar o cliente da tabela 'employee'
     cursor.execute("DELETE FROM employee WHERE code = ?", (client_code,))
     conn.commit()
 
-    # Em seguida, atualizamos o estoque subtraindo a quantidade associada ao cliente deletado
+    # Atualizar o estoque subtraindo a quantidade associada ao cliente deletado
     cursor.execute("SELECT Available FROM stock WHERE Product = ?", (product_name,))
     stock_result = cursor.fetchone()
 
@@ -283,9 +286,6 @@ def edit_client():
         WHERE code = ?""", (nome, idade, produto, id, client_code))
     conn.commit()
 
-    # Atualiza o estoque após editar o cliente (exemplo fictício)
-    # Aqui você pode adicionar lógica específica de como a alteração do cliente afeta o estoque, se aplicável
-
     desconect_bd(conn)
     select_client()
     clean_info_product()
@@ -346,8 +346,6 @@ def edit_order():
     update_stock_list()  # Atualiza a lista de estoque na interface
 
 
-
-
 def add_stock(product, quantity):
     conn = connect_bd()
     cursor = conn.cursor()
@@ -355,12 +353,14 @@ def add_stock(product, quantity):
     conn.commit()
     desconect_bd(conn)
 
+
 def update_stock(product, quantity):
     conn = connect_bd()
     cursor = conn.cursor()
     cursor.execute("UPDATE stock SET Available = Available - ? WHERE Product = ?", (quantity, product))
     conn.commit()
     desconect_bd(conn)
+
 
 def get_stock_info():
     conn = connect_bd()
