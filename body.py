@@ -410,6 +410,13 @@ def calculate_stock():
     return stock_with_available
 
 
+def update_stock_list():
+    stock_list.delete(*stock_list.get_children())
+    stock_data = calculate_stock()
+    for item in stock_data:
+        stock_list.insert("", END, values=item)
+
+
 # Inicializa a janela principal
 window = Tk()
 window.title('Gerenciamento Papelaria')
@@ -562,13 +569,6 @@ stock_list.column("#3", width=150)
 scrollbar3 = ttk.Scrollbar(aba5, orient=VERTICAL)
 stock_list.configure(yscroll=scrollbar3.set)
 scrollbar3.place(relx=0.95, rely=0.01, relwidth=0.05, relheight=0.95)
-
-
-def update_stock_list():
-    stock_list.delete(*stock_list.get_children())
-    stock_data = calculate_stock()
-    for item in stock_data:
-        stock_list.insert("", END, values=item)
 
 
 # Inicializa banco de dados e interface
