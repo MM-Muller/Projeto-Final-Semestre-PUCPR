@@ -4,6 +4,7 @@ import os
 
 USERS_FILE = "users.txt"
 
+
 def check_login(username, password):
     if not os.path.exists(USERS_FILE):
         return False
@@ -15,9 +16,11 @@ def check_login(username, password):
                 return True
     return False
 
+
 def register_user(username, password):
     with open(USERS_FILE, "a") as file:
         file.write(f"{username},{password},no\n")
+
 
 def approve_user(username):
     if not os.path.exists(USERS_FILE):
@@ -37,6 +40,7 @@ def approve_user(username):
 
     refresh_admin_approval_window()
 
+
 def reject_user(username):
     if not os.path.exists(USERS_FILE):
         return False
@@ -53,10 +57,12 @@ def reject_user(username):
 
     refresh_admin_approval_window()
 
+
 def refresh_admin_approval_window():
     global admin_window
     admin_window.destroy()
     open_admin_approval_window()
+
 
 def login():
     username = entry_username.get()
@@ -69,6 +75,7 @@ def login():
     else:
         messagebox.showerror("Erro de login", "Nome de usuário ou senha incorretos ou a conta não foi aprovada.")
 
+
 def register():
     username = entry_register_username.get()
     password = entry_register_password.get()
@@ -76,6 +83,7 @@ def register():
     register_user(username, password)
     messagebox.showinfo("Registro bem-sucedido", "Registro bem-sucedido! Aguarde a aprovação do administrador.")
     register_window.destroy()
+
 
 def open_register_window():
     global entry_register_username, entry_register_password, register_window
@@ -99,9 +107,11 @@ def open_register_window():
     button_register = ttk.Button(register_window, text="Registrar", command=register, style="Custom.TButton")
     button_register.pack(pady=(10, 20))
 
+
 def open_main_application():
     import body
     body.main()
+
 
 def admin_login():
     admin_username = admin_username_entry.get()
@@ -113,6 +123,7 @@ def admin_login():
         open_admin_approval_window()
     else:
         messagebox.showerror("Erro de login", "Nome de usuário ou senha de administrador incorretos.")
+
 
 def open_admin_login_window():
     global admin_username_entry, admin_password_entry, admin_window
@@ -130,6 +141,7 @@ def open_admin_login_window():
     admin_password_entry.pack(pady=(0, 20), ipadx=30, ipady=5)
 
     ttk.Button(admin_window, text="Login", command=admin_login, style="Custom.TButton").pack(pady=(10, 20))
+
 
 def open_admin_approval_window():
     global admin_window
@@ -152,6 +164,7 @@ def open_admin_approval_window():
                            style="Custom.TButton").pack(side=tk.LEFT)
                 ttk.Button(frame, text="Recusar", command=lambda u=username: reject_user(u),
                            style="Custom.TButton").pack(side=tk.RIGHT)
+
 
 # Criação da janela de login
 root = tk.Tk()
