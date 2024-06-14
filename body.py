@@ -303,7 +303,7 @@ def edit_order():
         return
 
     nome = name_entry_order.get()
-    quantidade_nova = int(age_entry_order.get())  # Convertendo para inteiro
+    quantidade_nova = int(age_entry_order.get())
     cpf = ident_entry_order.get()
     produto_novo = product_combobox_order.get()
 
@@ -321,30 +321,45 @@ def edit_order():
     produto_atual = current_order_info[0]
     quantidade_atual = current_order_info[1]
 
-    # Restaurar a quantidade original do pedido no estoque
+    # Restaurar a quantidade atual no estoque
     cursor.execute("UPDATE stock SET Available = Available + ? WHERE Product = ?", (quantidade_atual, produto_atual))
     conn.commit()
 
-    # Executar a atualização do pedido com as novas informações
+    # Verificar se há estoque suficiente para a nova quantidade do pedido
+    cursor.execute("SELECT Available FROM stock WHERE Product = ?", (produto_novo,))
+    stock_info = cursor.fetchone()
+
+    if not stock_info:
+        print(f"Produto {produto_novo} não encontrado no estoque.")
+        # Restaurar a quantidade original no estoque, já que a atualização falhou
+        cursor.execute("UPDATE stock SET Available = Available - ? WHERE Product = ?", (quantidade_atual, produto_atual))
+        conn.commit()
+        desconect_bd(conn)
+        return
+
+    quantidade_disponivel = stock_info[0]
+
+    if quantidade_disponivel < quantidade_nova:
+        print(f"Estoque insuficiente para o produto {produto_novo}. Disponível: {quantidade_disponivel}, Necessário: {quantidade_nova}.")
+        # Restaurar a quantidade original no estoque, já que a atualização falhou
+        cursor.execute("UPDATE stock SET Available = Available - ? WHERE Product = ?", (quantidade_atual, produto_atual))
+        conn.commit()
+        desconect_bd(conn)
+        return
+
+    # Atualizar a quantidade disponível no estoque para o novo produto
+    cursor.execute("UPDATE stock SET Available = Available - ? WHERE Product = ?", (quantidade_nova, produto_novo))
+    conn.commit()
+
+    # Atualizar o pedido com as novas informações
     cursor.execute("""UPDATE orders SET Name = ?, Quantity = ?, CPF = ?, Product = ?
         WHERE order_id = ?""", (nome, quantidade_nova, cpf, produto_novo, order_id))
     conn.commit()
-
-    # Atualizar o estoque subtraindo a nova quantidade do pedido
-    cursor.execute("SELECT Available FROM stock WHERE Product = ?", (produto_novo,))
-    current_stock = cursor.fetchone()
-    if current_stock:
-        updated_stock = current_stock[0] - quantidade_nova
-        cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (updated_stock, produto_novo))
-        conn.commit()
-    else:
-        print(f"Produto '{produto_novo}' não encontrado no estoque.")
 
     desconect_bd(conn)
     select_orders()
     clean_info_order()
     update_stock_list()  # Atualiza a lista de estoque na interface
-
 
 
 def add_stock(product, quantity):
