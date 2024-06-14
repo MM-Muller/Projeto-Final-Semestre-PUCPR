@@ -413,14 +413,14 @@ def calculate_stock():
 # Inicializa a janela principal
 window = Tk()
 window.title('Gerenciamento Papelaria')
-window.geometry('800x600')
+window.geometry('900x600')
 
 # Frame principal
 frame = Frame(window)
 frame.pack()
 
 # Primeira parte - 1
-user_info_frame = LabelFrame(frame, text='User Info')
+user_info_frame = LabelFrame(frame, text='Cadastro :')
 user_info_frame.grid(row=0, column=0, padx=100, pady=20, sticky=W)
 
 abas = ttk.Notebook(user_info_frame)
@@ -484,7 +484,7 @@ Button(aba2, text='Alterar Pedido', command=edit_order).grid(row=2, column=1, pa
 Button(aba2, text='Deletar Pedido', command=delete_order).grid(row=2, column=2, padx=15, pady=10)
 
 # Segunda parte - 1
-show_info_frame = LabelFrame(frame, text='View information')
+show_info_frame = LabelFrame(frame, text='Visualizar Cadastros e Estoque')
 show_info_frame.grid(row=1, column=0, padx=15, pady=20, sticky=W)
 
 abas_info = ttk.Notebook(show_info_frame)
@@ -504,7 +504,7 @@ abas_info.grid(row=1, column=0, padx=10, pady=10)
 
 # Treeview para Cadastro de Produtos
 client_list = ttk.Treeview(aba3, columns=('col1', 'col2', 'col3', 'col4', 'col5'))
-client_list.grid(row=0, column=0, padx=35, columnspan=1, pady=10, sticky=W)
+client_list.grid(row=0, column=0, padx=100, columnspan=1, pady=10, sticky=W)
 
 client_list.heading("#0", text="")
 client_list.column("#0", width=0, stretch=NO)
@@ -526,7 +526,7 @@ client_list.bind("<Double-1>", show_selected_client)
 
 # Treeview para Cadastro de Pedidos
 order_list = ttk.Treeview(aba4, columns=('col1', 'col2', 'col3', 'col4', 'col5'))
-order_list.grid(row=0, column=0, padx=35, columnspan=1, pady=10, sticky=W)
+order_list.grid(row=0, column=0, padx=100, columnspan=1, pady=10, sticky=W)
 
 order_list.heading("#0", text="")
 order_list.column("#0", width=0, stretch=NO)
