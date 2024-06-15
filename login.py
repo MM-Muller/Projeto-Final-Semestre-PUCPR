@@ -6,6 +6,12 @@ USERS_FILE = "users.txt"
 
 
 def check_login(username, password):
+    """
+
+    :param username:
+    :param password:
+    :return:
+    """
     if not os.path.exists(USERS_FILE):
         return False
 
@@ -195,7 +201,7 @@ label_password.pack(pady=(10, 0))
 entry_password = tk.Entry(root, show="*", font=("Helvetica", 10))
 entry_password.pack(pady=(0, 20), ipadx=30, ipady=5)
 
-# Botões em linha
+# Botões
 buttons_frame = tk.Frame(root)
 buttons_frame.pack(pady=20)
 

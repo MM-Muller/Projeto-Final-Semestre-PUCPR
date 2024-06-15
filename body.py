@@ -124,7 +124,7 @@ def add_order():
         conn.commit()
 
         # Atualizar o estoque subtraindo a quantidade do pedido
-        updated_stock = available_quantity
+        updated_stock = available_quantity - quantidade
         cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (updated_stock, produto))
         conn.commit()
 
@@ -258,11 +258,13 @@ def delete_order():
     conn.commit()
 
     # Restaurar a quantidade no estoque com a quantidade cadastrada
-    cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (current_available, product_name))
+    updated_stock = current_available + order_quantity
+    cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (updated_stock, product_name))
     conn.commit()
 
     desconect_bd(conn)
     select_orders()
+    clean_info_order()
     update_stock_list()  # Atualiza a lista de estoque na interface
 
 
@@ -277,19 +279,31 @@ def edit_client():
         return
 
     nome = name_entry_product.get()
-    idade = age_entry_product.get()
+    idade = int(age_entry_product.get())
     id = ident_entry_product.get()
     produto = product_combobox_product.get()
 
     client_code = client_list.item(selected_item)['values'][0]
+    quantidade_anterior = client_list.item(selected_item)['values'][2]
+
     cursor.execute(""" UPDATE employee SET Name = ?, Age = ?, Role = ?, Ident = ?
         WHERE code = ?""", (nome, idade, produto, id, client_code))
     conn.commit()
 
+    # Atualiza o estoque após editar o produto
+    cursor.execute("SELECT Available FROM stock WHERE Product = ?", (produto,))
+    current_stock = cursor.fetchone()
+    if current_stock:
+        updated_stock = current_stock[0] - quantidade_anterior + idade  # Ajusta o estoque pela diferença de quantidade
+        cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (updated_stock, produto))
+    else:
+        cursor.execute("INSERT INTO stock (Product, Available) VALUES (?, ?)", (produto, idade))
+
+    conn.commit()
     desconect_bd(conn)
     select_client()
     clean_info_product()
-    update_stock_list()  # Atualiza a lista de estoque na interface
+    update_stock_list()
 
 
 def edit_order():
@@ -339,27 +353,27 @@ def edit_order():
 
     quantidade_disponivel = stock_info[0]
 
-    if quantidade_disponivel < quantidade_nova:
-        print(f"Estoque insuficiente para o produto {produto_novo}. Disponível: {quantidade_disponivel}, Necessário: {quantidade_nova}.")
+    if quantidade_nova > quantidade_disponivel:
+        print(f"Estoque insuficiente para o produto '{produto_novo}'.")
         # Restaurar a quantidade original no estoque, já que a atualização falhou
         cursor.execute("UPDATE stock SET Available = Available - ? WHERE Product = ?", (quantidade_atual, produto_atual))
         conn.commit()
         desconect_bd(conn)
         return
 
-    # Atualizar a quantidade disponível no estoque para o novo produto
-    cursor.execute("UPDATE stock SET Available = Available - ? WHERE Product = ?", (quantidade_nova, produto_novo))
-    conn.commit()
-
-    # Atualizar o pedido com as novas informações
+    # Atualizar o pedido
     cursor.execute("""UPDATE orders SET Name = ?, Quantity = ?, CPF = ?, Product = ?
         WHERE order_id = ?""", (nome, quantidade_nova, cpf, produto_novo, order_id))
+    conn.commit()
+
+    # Atualizar o estoque subtraindo a nova quantidade do pedido
+    cursor.execute("UPDATE stock SET Available = Available - ? WHERE Product = ?", (quantidade_nova, produto_novo))
     conn.commit()
 
     desconect_bd(conn)
     select_orders()
     clean_info_order()
-    update_stock_list()  # Atualiza a lista de estoque na interface
+    update_stock_list()
 
 
 def add_stock(product, quantity):
@@ -405,7 +419,7 @@ def calculate_stock():
     stock_with_available = []
     for product, available, retirada in stock_data:
         current_available = available - retirada
-        stock_with_available.append((product, current_available, retirada))
+        stock_with_available.append((product, available, retirada, current_available))
 
     return stock_with_available
 
@@ -554,17 +568,19 @@ scrollbar2.place(relx=0.95, rely=0.01, relwidth=0.05, relheight=0.95)
 order_list.bind("<Double-1>", show_selected_order)
 
 # Treeview para Estoque
-stock_list = ttk.Treeview(aba5, columns=('col1', 'col2', 'col3'))
+stock_list = ttk.Treeview(aba5, columns=('col1', 'col2', 'col3', 'col4'))
 stock_list.grid(row=0, column=0, padx=150, columnspan=1, pady=10, sticky=W)
 
 stock_list.heading("#0", text="")
 stock_list.column("#0", width=0, stretch=NO)
 stock_list.heading("#1", text='Produto')
 stock_list.column("#1", width=150)
-stock_list.heading("#2", text='Disponível')
+stock_list.heading("#2", text='Cadastrado')
 stock_list.column("#2", width=150)
 stock_list.heading("#3", text='Retirada')
 stock_list.column("#3", width=150)
+stock_list.heading("#4", text='Disponível')
+stock_list.column("#4", width=150)
 
 scrollbar3 = ttk.Scrollbar(aba5, orient=VERTICAL)
 stock_list.configure(yscroll=scrollbar3.set)
