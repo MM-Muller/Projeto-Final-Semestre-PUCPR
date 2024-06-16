@@ -1,4 +1,12 @@
+"""
+Módulo: Sistema de Gerenciamento de Funcionários e Estoque
+Data: 09/06/2024
+Versão: 1.0
+Descrição: Sistema para gerenciar funcionários, pedidos e estoque utilizando SQLite.
+"""
+
 import sqlite3
+
 
 def connect_bd():
     return sqlite3.connect('employee.db')

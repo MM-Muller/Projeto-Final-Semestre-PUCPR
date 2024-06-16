@@ -1,3 +1,10 @@
+"""
+Módulo: Sistema de Login e Registro
+Data: 09/06/2024
+Versão: 1.0
+Descrição: Sistema de login e registro de usuários com aprovação de administrador.
+"""
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 import os

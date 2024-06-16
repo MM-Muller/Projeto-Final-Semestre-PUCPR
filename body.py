@@ -1,3 +1,10 @@
+"""
+Módulo: Gerenciamento de Papelaria
+Data: 09/06/2024
+Versão: 1.0
+Descrição: Sistema de gerenciamento de estoque e pedidos de uma papelaria usando Tkinter para a interface gráfica e SQLite para banco de dados.
+"""
+
 from tkinter import *
 from tkinter import ttk, messagebox
 from database import *
