@@ -252,7 +252,7 @@ style.configure("Custom.TButton",
                 background="black",
                 padding=5)
 style.map("Custom.TButton",
-          foreground=[("active", "red")],
+          foreground=[("active", "black")],
           background=[("active", "white")])
 
 # Widgets da interface
