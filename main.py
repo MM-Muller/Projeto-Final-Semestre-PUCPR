@@ -5,7 +5,7 @@ Versão: 1.0
 Descrição: Script para iniciar a aplicação principal após o login bem-sucedido.
 """
 
-from login import open_main_application
+from login import *
 
 if __name__ == '__main__':
-    open_main_application()
+    login.main()
