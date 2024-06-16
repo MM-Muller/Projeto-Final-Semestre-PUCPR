@@ -223,7 +223,7 @@ def delete_order():
     desconect_bd(conn)
     select_orders()
     clean_info_order()
-    update_stock_list()  # Atualiza a lista de estoque na interface
+    update_stock_list()
 
 
 def edit_client():
@@ -252,7 +252,7 @@ def edit_client():
     cursor.execute("SELECT Available FROM stock WHERE Product = ?", (produto,))
     current_stock = cursor.fetchone()
     if current_stock:
-        updated_stock = current_stock[0] - quantidade_anterior + idade  # Ajusta o estoque pela diferença de quantidade
+        updated_stock = current_stock[0] - quantidade_anterior + idade
         cursor.execute("UPDATE stock SET Available = ? WHERE Product = ?", (updated_stock, produto))
     else:
         cursor.execute("INSERT INTO stock (Product, Available) VALUES (?, ?)", (produto, idade))
@@ -303,7 +303,6 @@ def edit_order():
 
     if not stock_info:
         print(f"Produto {produto_novo} não encontrado no estoque.")
-        # Restaurar a quantidade original no estoque, já que a atualização falhou
         cursor.execute("UPDATE stock SET Available = Available - ? WHERE Product = ?", (quantidade_atual, produto_atual))
         conn.commit()
         desconect_bd(conn)
@@ -398,7 +397,7 @@ window.geometry('900x600')
 frame = Frame(window)
 frame.pack()
 
-# Primeira parte - 1
+# Primeira parte
 user_info_frame = LabelFrame(frame, text='Cadastro :')
 user_info_frame.grid(row=0, column=0, padx=100, pady=20, sticky=W)
 
@@ -462,7 +461,7 @@ Button(aba2, text='Novo Pedido', command=add_order).grid(row=2, column=3, padx=1
 Button(aba2, text='Alterar Pedido', command=edit_order).grid(row=2, column=1, padx=15, pady=10)
 Button(aba2, text='Deletar Pedido', command=delete_order).grid(row=2, column=2, padx=15, pady=10)
 
-# Segunda parte - 1
+# Segunda parte
 show_info_frame = LabelFrame(frame, text='Visualizar Cadastros e Estoque')
 show_info_frame.grid(row=1, column=0, padx=15, pady=20, sticky=W)
 

@@ -7,10 +7,11 @@ USERS_FILE = "users.txt"
 
 def check_login(username, password):
     """
+    Verifica se um usuário está registrado e aprovado.
 
-    :param username:
-    :param password:
-    :return:
+    :param username: Nome de usuário a ser verificado.
+    :param password: Senha correspondente ao usuário.
+    :return: True se o login for bem-sucedido e aprovado, False caso contrário.
     """
     if not os.path.exists(USERS_FILE):
         return False
@@ -24,11 +25,22 @@ def check_login(username, password):
 
 
 def register_user(username, password):
+    """
+    Registra um novo usuário no arquivo de usuários.
+
+    :param username: Nome de usuário a ser registrado.
+    :param password: Senha correspondente ao usuário.
+    """
     with open(USERS_FILE, "a") as file:
         file.write(f"{username},{password},no\n")
 
 
 def approve_user(username):
+    """
+    Aprova um usuário registrado, alterando seu status de 'no' para 'yes'.
+
+    :param username: Nome de usuário do usuário a ser aprovado.
+    """
     if not os.path.exists(USERS_FILE):
         return False
 
@@ -48,6 +60,11 @@ def approve_user(username):
 
 
 def reject_user(username):
+    """
+    Rejeita um usuário registrado, removendo-o do arquivo de usuários.
+
+    :param username: Nome de usuário do usuário a ser rejeitado.
+    """
     if not os.path.exists(USERS_FILE):
         return False
 
@@ -71,6 +88,12 @@ def refresh_admin_approval_window():
 
 
 def login():
+    """
+    Verifica as credenciais de login fornecidas pelo usuário.
+
+    :return: Exibe uma mensagem de sucesso se o login for bem-sucedido e abre a aplicação principal.
+             Exibe uma mensagem de erro se o login falhar devido a credenciais incorretas ou conta não aprovada.
+    """
     username = entry_username.get()
     password = entry_password.get()
 
@@ -83,6 +106,11 @@ def login():
 
 
 def register():
+    """
+    Registra um novo usuário com as informações fornecidas.
+
+    :return: Após o registro bem-sucedido, exibe uma mensagem informativa e fecha a janela de registro.
+    """
     username = entry_register_username.get()
     password = entry_register_password.get()
 
@@ -92,6 +120,11 @@ def register():
 
 
 def open_register_window():
+    """
+    Abre uma nova janela para o usuário se registrar.
+
+    :return: Solicita nome de usuário e senha e oferece um botão para registrar.
+    """
     global entry_register_username, entry_register_password, register_window
 
     register_window = tk.Toplevel(root)
@@ -115,11 +148,21 @@ def open_register_window():
 
 
 def open_main_application():
+    """
+    Abre a aplicação principal após um login bem-sucedido.
+    Esta função importa e executa a função 'main' do módulo 'body', que contém a lógica principal da aplicação.
+    """
     import body
     body.main()
 
 
 def admin_login():
+    """
+    Verifica as credenciais de login do administrador.
+
+    :return: Exibe uma mensagem de sucesso se o login for bem-sucedido e abre a janela de aprovação de administração.
+             Exibe uma mensagem de erro se o login falhar devido a credenciais incorretas.
+    """
     admin_username = admin_username_entry.get()
     admin_password = admin_password_entry.get()
 
@@ -132,6 +175,9 @@ def admin_login():
 
 
 def open_admin_login_window():
+    """
+    Abre uma janela de administração para aprovar ou rejeitar usuários pendentes.
+    """
     global admin_username_entry, admin_password_entry, admin_window
 
     admin_window = tk.Toplevel(root)
@@ -150,6 +196,10 @@ def open_admin_login_window():
 
 
 def open_admin_approval_window():
+    """
+    Abre uma janela para administração de aprovação de usuários.
+    Exibe a lista de usuários pendentes de aprovação com opções para aprovar ou rejeitar cada um.
+    """
     global admin_window
     admin_window = tk.Toplevel(root)
     admin_window.title("Aprovar Usuários")
