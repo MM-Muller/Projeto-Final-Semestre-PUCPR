@@ -9,14 +9,30 @@ import sqlite3
 
 
 def connect_bd():
+    """
+    Conecta ao banco de dados SQLite.
+
+    :return: Conexão com o banco de dados.
+    """
     return sqlite3.connect('employee.db')
 
 
 def desconect_bd(conn):
+    """
+    Fecha a conexão com o banco de dados.
+
+    :param conn: Conexão com o banco de dados.
+    :return: None
+    """
     conn.close()
 
 
 def create_tab():
+    """
+    Cria as tabelas necessárias no banco de dados.
+
+    :return: None
+    """
     conn = connect_bd()
     cursor = conn.cursor()
     cursor.execute("""
