@@ -6,8 +6,9 @@ from database import *
 # Funções do Tkinter
 def clean_info_product():
     """
+    Limpa os campos de entrada do formulário de produto.
 
-    :return:
+    :return: None
     """
     name_entry_product.delete(0, END)
     age_entry_product.delete(0, END)
@@ -17,8 +18,9 @@ def clean_info_product():
 
 def clean_info_order():
     """
+    Limpa os campos de entrada do formulário de pedido.
 
-    :return:
+    :return: None
     """
     name_entry_order.delete(0, END)
     age_entry_order.delete(0, END)
@@ -28,8 +30,9 @@ def clean_info_order():
 
 def add_client():
     """
+    Adiciona um novo cliente à base de dados e atualiza o estoque.
 
-    :return:
+    :return: None
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -69,8 +72,9 @@ def add_client():
 
 def add_order():
     """
+    Adiciona um novo pedido à base de dados e atualiza o estoque.
 
-    :return:
+    :return: None
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -113,17 +117,19 @@ def add_order():
 
 def validate_age_input(new_value):
     """
+    Valida se a entrada para a idade é um número.
 
-    :param new_value:
-    :return:
+    :param new_value: Novo valor a ser validado.
+    :return: True se for um número ou vazio, caso contrário False.
     """
     return new_value.isdigit() or new_value == ""
 
 
 def select_client():
     """
+    Seleciona todos os clientes da base de dados e atualiza a lista de clientes na interface.
 
-    :return:
+    :return: None
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -136,8 +142,9 @@ def select_client():
 
 def select_orders():
     """
+    Seleciona todos os pedidos da base de dados e atualiza a lista de pedidos na interface.
 
-    :return:
+    :return: None
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -150,9 +157,10 @@ def select_orders():
 
 def show_selected_client(event):
     """
+    Exibe as informações do cliente selecionado nos campos de entrada do formulário.
 
-    :param event:
-    :return:
+    :param event: Evento de seleção.
+    :return: None
     """
     selected_item = client_list.selection()
     if selected_item:
@@ -168,9 +176,10 @@ def show_selected_client(event):
 
 def show_selected_order(event):
     """
+    Exibe as informações do pedido selecionado nos campos de entrada do formulário.
 
-    :param event:
-    :return:
+    :param event: Evento de seleção.
+    :return: None
     """
     selected_item = order_list.selection()
     if selected_item:
@@ -186,8 +195,9 @@ def show_selected_order(event):
 
 def delete_client():
     """
+    Deleta o cliente selecionado da base de dados e atualiza o estoque.
 
-    :return:
+    :return: None
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -225,8 +235,9 @@ def delete_client():
 
 def delete_order():
     """
+    Deleta o pedido selecionado da base de dados e atualiza o estoque.
 
-    :return:
+    :return: None
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -275,8 +286,9 @@ def delete_order():
 
 def edit_client():
     """
+    Edita as informações do cliente selecionado na base de dados e atualiza o estoque.
 
-    :return:
+    :return: None
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -317,8 +329,9 @@ def edit_client():
 
 def edit_order():
     """
+    Edita as informações do pedido selecionado na base de dados e atualiza o estoque.
 
-    :return:
+    :return: None
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -390,10 +403,11 @@ def edit_order():
 
 def add_stock(product, quantity):
     """
+    Adiciona novo produto ao estoque.
 
-    :param product:
-    :param quantity:
-    :return:
+    :param product: Nome do produto a ser adicionado.
+    :param quantity: Quantidade a ser adicionada ao estoque.
+    :return: None
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -404,10 +418,11 @@ def add_stock(product, quantity):
 
 def update_stock(product, quantity):
     """
+    Atualiza o estoque subtraindo a quantidade especificada.
 
-    :param product:
-    :param quantity:
-    :return:
+    :param product: Nome do produto a ser atualizado.
+    :param quantity: Quantidade a ser subtraída do estoque.
+    :return: None
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -418,8 +433,9 @@ def update_stock(product, quantity):
 
 def get_stock_info():
     """
+    Obtém informações de todos os produtos no estoque.
 
-    :return:
+    :return: Lista de tuplas contendo as informações dos produtos no estoque.
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -431,8 +447,9 @@ def get_stock_info():
 
 def calculate_stock():
     """
+    Calcula a quantidade disponível de cada produto no estoque.
 
-    :return:
+    :return: Lista de tuplas contendo informações do estoque e a quantidade disponível de cada produto.
     """
     conn = connect_bd()
     cursor = conn.cursor()
@@ -458,8 +475,9 @@ def calculate_stock():
 
 def update_stock_list():
     """
-    
-    :return:
+    Atualiza a lista de produtos no estoque na interface.
+
+    :return: None
     """
     stock_list.delete(*stock_list.get_children())
     stock_data = calculate_stock()
