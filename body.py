@@ -302,7 +302,7 @@ def edit_client():
 
     selected_item = client_list.selection()
     if len(selected_item) == 0:
-        print("Aviso!! Selecione um cliente para editar.")
+        messagebox.showinfo("Aviso!!", "Selecione um produto para editar.")
         desconect_bd(conn)
         return
 
@@ -345,7 +345,7 @@ def edit_order():
 
     selected_item = order_list.selection()
     if len(selected_item) == 0:
-        print("Aviso!! Selecione um pedido para editar.")
+        messagebox.showinfo("Aviso!!", "Selecione um pedido para editar.")
         desconect_bd(conn)
         return
 
