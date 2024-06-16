@@ -5,6 +5,10 @@ from database import *
 
 # Funções do Tkinter
 def clean_info_product():
+    """
+
+    :return:
+    """
     name_entry_product.delete(0, END)
     age_entry_product.delete(0, END)
     product_combobox_product.set('')  # Limpar a seleção do combobox
@@ -12,6 +16,10 @@ def clean_info_product():
 
 
 def clean_info_order():
+    """
+
+    :return:
+    """
     name_entry_order.delete(0, END)
     age_entry_order.delete(0, END)
     product_combobox_order.set('')  # Limpar a seleção do combobox
@@ -19,6 +27,10 @@ def clean_info_order():
 
 
 def add_client():
+    """
+
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
 
@@ -56,6 +68,10 @@ def add_client():
 
 
 def add_order():
+    """
+
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
 
@@ -96,10 +112,19 @@ def add_order():
 
 
 def validate_age_input(new_value):
+    """
+
+    :param new_value:
+    :return:
+    """
     return new_value.isdigit() or new_value == ""
 
 
 def select_client():
+    """
+
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
     client_list.delete(*client_list.get_children())
@@ -110,6 +135,10 @@ def select_client():
 
 
 def select_orders():
+    """
+
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
     order_list.delete(*order_list.get_children())
@@ -120,6 +149,11 @@ def select_orders():
 
 
 def show_selected_client(event):
+    """
+
+    :param event:
+    :return:
+    """
     selected_item = client_list.selection()
     if selected_item:
         client_info = client_list.item(selected_item)['values']
@@ -133,6 +167,11 @@ def show_selected_client(event):
 
 
 def show_selected_order(event):
+    """
+
+    :param event:
+    :return:
+    """
     selected_item = order_list.selection()
     if selected_item:
         order_info = order_list.item(selected_item)['values']
@@ -146,6 +185,10 @@ def show_selected_order(event):
 
 
 def delete_client():
+    """
+
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
 
@@ -181,6 +224,10 @@ def delete_client():
 
 
 def delete_order():
+    """
+
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
 
@@ -227,6 +274,10 @@ def delete_order():
 
 
 def edit_client():
+    """
+
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
 
@@ -265,6 +316,10 @@ def edit_client():
 
 
 def edit_order():
+    """
+
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
 
@@ -334,6 +389,12 @@ def edit_order():
 
 
 def add_stock(product, quantity):
+    """
+
+    :param product:
+    :param quantity:
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
     cursor.execute("INSERT INTO stock (Product, Available) VALUES (?, ?)", (product, quantity))
@@ -342,6 +403,12 @@ def add_stock(product, quantity):
 
 
 def update_stock(product, quantity):
+    """
+
+    :param product:
+    :param quantity:
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
     cursor.execute("UPDATE stock SET Available = Available - ? WHERE Product = ?", (quantity, product))
@@ -350,6 +417,10 @@ def update_stock(product, quantity):
 
 
 def get_stock_info():
+    """
+
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM stock")
@@ -359,6 +430,10 @@ def get_stock_info():
 
 
 def calculate_stock():
+    """
+
+    :return:
+    """
     conn = connect_bd()
     cursor = conn.cursor()
 
@@ -382,6 +457,10 @@ def calculate_stock():
 
 
 def update_stock_list():
+    """
+    
+    :return:
+    """
     stock_list.delete(*stock_list.get_children())
     stock_data = calculate_stock()
     for item in stock_data:
