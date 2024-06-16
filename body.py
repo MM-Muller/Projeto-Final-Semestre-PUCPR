@@ -53,7 +53,7 @@ def add_client():
     existing_user = cursor.fetchone()
 
     if existing_user:
-        print("Erro", "Já existe um usuário com esse ID.")
+        messagebox.showinfo("Erro", "Já existe um produto cadastrado com esse ID.")
         desconect_bd(conn)
         return
 
