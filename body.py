@@ -211,7 +211,7 @@ def delete_client():
 
     selected_item = client_list.selection()
     if len(selected_item) == 0:
-        print("Aviso!! Selecione um cliente para deletar.")
+        messagebox.showinfo("Aviso!!", "Selecione um cliente para deletar.")
         desconect_bd(conn)
         return
 
@@ -251,7 +251,7 @@ def delete_order():
 
     selected_item = order_list.selection()
     if len(selected_item) == 0:
-        print("Aviso!! Selecione um pedido para deletar.")
+        messagebox.showinfo("Aviso!!", "Selecione um pedido para deletar.")
         desconect_bd(conn)
         return
 
