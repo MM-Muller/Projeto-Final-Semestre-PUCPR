@@ -1,1 +1,1 @@
-Projeto para conclusão do semestre de raciocínio algorítmico - em Engenharia de Software | PUCPR
+Para realizar o projeto para um dos cursos de BES foi feito um aplicativo que é uma solução para gestão de empresas, fornecedores e clientes, centralizando o controle de pedidos e compras. Com uma interface simples e intuitiva.
